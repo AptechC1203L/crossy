@@ -12,16 +12,19 @@ import java.util.List;
  */
 public class GameSession {
     private List<Turn> turns;
+    private List<Player> playerList;
     private Board board;
+    private boolean gameStillRunning;
 
-    public GameSession() {
+    public GameSession(List<Player> playerList) {
+        this.playerList = playerList;
     }
     
     // Main game loop
     public void takeTurn() {
         while (gameStillRunning) {
-            for (player : playerList) {
-                move = askForMove(player);
+            for (Player player : playerList) {
+                move = player.makeAMove()
                 updateBoard();
                 if (checkWiningCondition(move, board)) {
                     // Tell everybody that the game ended
@@ -32,5 +35,13 @@ public class GameSession {
                 // Next player
             }
         }
+    }
+
+    private void updateBoard() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private void endGame() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
