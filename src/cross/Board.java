@@ -9,13 +9,14 @@ package cross;
  * @author chin
  */
 public class Board {
-    private boolean[][] board;
+
+    private Player[][] board;
 
     public Board(int width, int height) {
-        this.board = new boolean[height][width];
+        this.board = new Player[height][width];
     }
-    
-    public boolean get(int x, int y) {
+
+    public Player get(int x, int y) {
         return board[x][y];
     }
 
@@ -26,7 +27,6 @@ public class Board {
         return board[0].length;
     }
 
-
     /**
      * @return the height
      */
@@ -34,4 +34,14 @@ public class Board {
         return board.length;
     }
 
+    public int makeMove(int x, int y, Player p) {
+        if (x < this.getWidth() && y < this.getHeight()
+                && x >= 0 && y >= 0
+                && board[y][x] == null) {
+            this.board[y][x] = p;
+            return 0;
+        } else {
+            return -1;
+        }
+    }
 }
