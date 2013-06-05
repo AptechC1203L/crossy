@@ -38,7 +38,13 @@ public class GameSession {
     }
 
     private void updateBoard() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        // For now just print the board out onto the console
+        // TODO Update GUI or something
+        for (int i = 0; i < board.getHeight(); i++) {
+            for (int k = 0; k < board.getWidth(); k++)
+                System.out.print(board.get(i, k));
+            System.out.println("");
+        }
     }
 
     private void endGame() {
