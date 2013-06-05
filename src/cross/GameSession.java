@@ -17,14 +17,20 @@ public class GameSession {
     public GameSession() {
     }
     
-    /*
-     * Contract:
-     * x <= board.x
-     * y <= board.y
-     * 
-     * Out:
-     * Turn is propagated over network, turn is manifested in user's view
-     * */
-    public void takeTurn(int x, int y) {
+    // Main game loop
+    public void takeTurn() {
+        while (gameStillRunning) {
+            for (player : playerList) {
+                move = askForMove(player);
+                updateBoard();
+                if (checkWiningCondition(move, board)) {
+                    // Tell everybody that the game ended
+                    // If the game is a local game then display a dialog or a signal
+                    endGame();
+                    gameStillRunning = false;
+                }
+                // Next player
+            }
+        }
     }
 }
