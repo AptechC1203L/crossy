@@ -9,13 +9,10 @@ package cross;
  * @author chin
  */
 public class Board {
-    private int width;
-    private int height;
     private boolean[][] board;
 
     public Board(int width, int height) {
-        this.width = width;
-        this.height = height;
+        this.board = new boolean[height][width];
     }
     
     public boolean get(int x, int y) {
@@ -26,27 +23,15 @@ public class Board {
      * @return the width
      */
     public int getWidth() {
-        return width;
+        return board[0].length;
     }
 
-    /**
-     * @param width the width to set
-     */
-    public void setWidth(int width) {
-        this.width = width;
-    }
 
     /**
      * @return the height
      */
     public int getHeight() {
-        return height;
+        return board.length;
     }
 
-    /**
-     * @param height the height to set
-     */
-    public void setHeight(int height) {
-        this.height = height;
-    }
 }
