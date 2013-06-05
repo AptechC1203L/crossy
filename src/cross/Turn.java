@@ -11,9 +11,9 @@ package cross;
 public class Turn {
     public int x;
     public int y;
-    public String player;
+    public Player player;
 
-    public Turn(int x, int y, String player) {
+    public Turn(int x, int y, Player player) {
         this.x = x;
         this.y = y;
         this.player = player;
@@ -27,7 +27,7 @@ public class Turn {
         return y;
     }
 
-    public String getPlayer() {
+    public Player getPlayer() {
         return player;
     }
 }
