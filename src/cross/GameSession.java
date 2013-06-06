@@ -44,8 +44,9 @@ public class GameSession {
                         // Tell everybody that the game ended
                         // If the game is a local game then display a dialog or a
                         // signal
-                        this.endGame();
+                        this.endGame(player);
                         this.gameStillRunning = false;
+                        break;
                     }
                     // Next player
                 }
@@ -71,8 +72,19 @@ public class GameSession {
         }
     }
 
-    private void endGame() {
+    private void endGame(Player p) {
+        String msg;
+
+        if (p != null) {
+            msg = p.getName() + " won!";
+        } else {
+            msg = "It's a draw...";
+        }
+
+
+        // TODO Make a formal message (over the net)
         System.out.println("Hey, game ended!");
+        System.out.println(msg);
     }
 
     private boolean checkWiningCondition(Turn move) {
