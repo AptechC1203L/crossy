@@ -9,21 +9,22 @@ package cross;
  * @author chin
  */
 public class Turn {
-    public int x;
+
+    public int row;
     public int y;
     public Player player;
 
-    public Turn(int x, int y, Player player) {
-        this.x = x;
-        this.y = y;
+    public Turn(int row, int column, Player player) {
+        this.row = row;
+        this.y = column;
         this.player = player;
     }
 
-    public int getX() {
-        return x;
+    public int getRow() {
+        return row;
     }
 
-    public int getY() {
+    public int getColumn() {
         return y;
     }
 
