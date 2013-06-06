@@ -23,7 +23,7 @@ public class Cross {
         playerList.add(player1);
         playerList.add(player2);
 
-        GameSession gameSession = new GameSession(playerList, 9);
+        GameSession gameSession = new GameSession(playerList, 9, 5);
         gameSession.takeTurn();
     }
 }

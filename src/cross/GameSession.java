@@ -18,9 +18,10 @@ public class GameSession {
     private Board board;
     private boolean gameStillRunning;
 
-    public GameSession(List<Player> playerList, int boardSize) {
+    public GameSession(List<Player> playerList, int boardSize, int winLen) {
+        // TODO check that winLen <= boardSize
         this.playerList = playerList;
-        this.board = new Board(boardSize, boardSize);
+        this.board = new Board(boardSize, boardSize, winLen);
         this.gameStillRunning = false;
         this.turns = new ArrayList<>();
     }
@@ -33,14 +34,14 @@ public class GameSession {
                 Player player = this.playerList.get(i);
                 Turn move = player.makeAMove();
                 this.turns.add(move);
-                if (this.board.makeMove(move.x, move.y, player) == -1) {
+                if (this.board.makeMove(move) == -1) {
                     System.out.println("Wrong move!");
                     // Give them another chance
                     i--;
                     continue;
                 } else {
                     updateBoard();
-                    if (this.checkWiningCondition(move)) {
+                    if (this.board.checkMoveIsWin(move) == 1) {
                         // Tell everybody that the game ended
                         // If the game is a local game then display a dialog or a
                         // signal
@@ -85,7 +86,5 @@ public class GameSession {
         // TODO Make a formal message (over the net)
         System.out.println("Hey, game ended!");
         System.out.println(msg);
-    }
-
     }
 }
