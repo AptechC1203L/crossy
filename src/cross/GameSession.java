@@ -87,12 +87,5 @@ public class GameSession {
         System.out.println(msg);
     }
 
-    private boolean checkWiningCondition(Turn move) {
-        for (int i = 0; i < board.getHeight(); i++) {
-            for (int k = 0; k < board.getWidth(); k++) {
-                board.get(i, k);
-            }
-        }
-        return false;
     }
 }
