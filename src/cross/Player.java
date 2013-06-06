@@ -33,4 +33,8 @@ public class Player {
     public char getSignature() {
         return this.signature;
     }
+
+    public String getName() {
+        return this.name;
+    }
 }
