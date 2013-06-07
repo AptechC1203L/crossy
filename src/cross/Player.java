@@ -20,13 +20,13 @@ public class Player {
         this.name = name;
     }
 
-    public Turn makeAMove() {
+    public Move makeAMove() {
         // TODO randomize or ask user
         System.out.println("Hey, make a move, " + this.name + ":");
         Scanner s = new Scanner(System.in);
         int x = s.nextInt();
         int y = s.nextInt();
-        Turn t = new Turn(x, y, this);
+        Move t = new Move(x, y, this);
         return t;
     }
 

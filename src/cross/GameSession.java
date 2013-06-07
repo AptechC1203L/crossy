@@ -32,8 +32,8 @@ public class GameSession {
         while (this.gameStillRunning) {
             for (int i = 0; i < this.playerList.size(); i++) {
                 Player player = this.playerList.get(i);
-                Turn move = player.makeAMove();
                 this.turns.add(move);
+                Move move = player.makeAMove();
                 if (this.board.makeMove(move) == -1) {
                     System.out.println("Wrong move!");
                     // Give them another chance

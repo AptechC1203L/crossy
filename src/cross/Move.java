@@ -8,15 +8,15 @@ package cross;
  *
  * @author chin
  */
-public class Turn {
+public class Move {
 
     public int row;
-    public int y;
+    public int col;
     public Player player;
 
-    public Turn(int row, int column, Player player) {
+    public Move(int row, int column, Player player) {
         this.row = row;
-        this.y = column;
+        this.col = column;
         this.player = player;
     }
 
@@ -25,7 +25,7 @@ public class Turn {
     }
 
     public int getColumn() {
-        return y;
+        return col;
     }
 
     public Player getPlayer() {

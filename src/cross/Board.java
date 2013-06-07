@@ -36,7 +36,7 @@ public class Board {
         return board.length;
     }
 
-    public int makeMove(Turn move) {
+    public int makeMove(Move move) {
         int row = move.getRow();
         int col = move.getColumn();
         Player p = move.getPlayer();
@@ -61,7 +61,7 @@ public class Board {
      * draw.
      *
      */
-    public int checkMoveIsWin(Turn move) {
+    public int checkMoveIsWin(Move move) {
         Player p = move.getPlayer();
         int row = move.getRow();
         int column = move.getColumn();

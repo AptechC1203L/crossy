@@ -53,48 +53,48 @@ public class BoardTest {
         // x       x       x
 
         // NW - SE
-        instance.makeMove(new Turn(5, 5, player1));
-        instance.makeMove(new Turn(6, 6, player1));
-        instance.makeMove(new Turn(7, 7, player1));
-        instance.makeMove(new Turn(8, 8, player1));
-        instance.makeMove(new Turn(9, 9, player1));
-        instance.makeMove(new Turn(10, 10, player1));
-        instance.makeMove(new Turn(11, 11, player1));
-        instance.makeMove(new Turn(12, 12, player1));
-        instance.makeMove(new Turn(13, 13, player1));
+        instance.makeMove(new Move(5, 5, player1));
+        instance.makeMove(new Move(6, 6, player1));
+        instance.makeMove(new Move(7, 7, player1));
+        instance.makeMove(new Move(8, 8, player1));
+        instance.makeMove(new Move(9, 9, player1));
+        instance.makeMove(new Move(10, 10, player1));
+        instance.makeMove(new Move(11, 11, player1));
+        instance.makeMove(new Move(12, 12, player1));
+        instance.makeMove(new Move(13, 13, player1));
 
         // NE - SW
-        instance.makeMove(new Turn(5, 13, player1));
-        instance.makeMove(new Turn(6, 12, player1));
-        instance.makeMove(new Turn(7, 11, player1));
-        instance.makeMove(new Turn(8, 10, player1));
-        instance.makeMove(new Turn(9, 9, player1));
-        instance.makeMove(new Turn(10, 8, player1));
-        instance.makeMove(new Turn(11, 7, player1));
-        instance.makeMove(new Turn(12, 6, player1));
-        instance.makeMove(new Turn(13, 5, player1));
+        instance.makeMove(new Move(5, 13, player1));
+        instance.makeMove(new Move(6, 12, player1));
+        instance.makeMove(new Move(7, 11, player1));
+        instance.makeMove(new Move(8, 10, player1));
+        instance.makeMove(new Move(9, 9, player1));
+        instance.makeMove(new Move(10, 8, player1));
+        instance.makeMove(new Move(11, 7, player1));
+        instance.makeMove(new Move(12, 6, player1));
+        instance.makeMove(new Move(13, 5, player1));
 
         // N - S
-        instance.makeMove(new Turn(5, 9, player1));
-        instance.makeMove(new Turn(6, 9, player1));
-        instance.makeMove(new Turn(7, 9, player1));
-        instance.makeMove(new Turn(8, 9, player1));
-        instance.makeMove(new Turn(9, 9, player1));
-        instance.makeMove(new Turn(10, 9, player1));
-        instance.makeMove(new Turn(11, 9, player1));
-        instance.makeMove(new Turn(12, 9, player1));
-        instance.makeMove(new Turn(13, 9, player1));
+        instance.makeMove(new Move(5, 9, player1));
+        instance.makeMove(new Move(6, 9, player1));
+        instance.makeMove(new Move(7, 9, player1));
+        instance.makeMove(new Move(8, 9, player1));
+        instance.makeMove(new Move(9, 9, player1));
+        instance.makeMove(new Move(10, 9, player1));
+        instance.makeMove(new Move(11, 9, player1));
+        instance.makeMove(new Move(12, 9, player1));
+        instance.makeMove(new Move(13, 9, player1));
 
         // W - E
-        instance.makeMove(new Turn(9, 5, player1));
-        instance.makeMove(new Turn(9, 6, player1));
-        instance.makeMove(new Turn(9, 7, player1));
-        instance.makeMove(new Turn(9, 8, player1));
-        instance.makeMove(new Turn(9, 9, player1));
-        instance.makeMove(new Turn(9, 10, player1));
-        instance.makeMove(new Turn(9, 11, player1));
-        instance.makeMove(new Turn(9, 12, player1));
-        instance.makeMove(new Turn(9, 13, player1));
+        instance.makeMove(new Move(9, 5, player1));
+        instance.makeMove(new Move(9, 6, player1));
+        instance.makeMove(new Move(9, 7, player1));
+        instance.makeMove(new Move(9, 8, player1));
+        instance.makeMove(new Move(9, 9, player1));
+        instance.makeMove(new Move(9, 10, player1));
+        instance.makeMove(new Move(9, 11, player1));
+        instance.makeMove(new Move(9, 12, player1));
+        instance.makeMove(new Move(9, 13, player1));
     }
 
     @After
@@ -106,8 +106,8 @@ public class BoardTest {
      */
     @Test
     public void testMakeMove() {
-        int res1 = instance.makeMove(new Turn(2, 2, player1));
-        int res2 = instance.makeMove(new Turn(4, 6, player2));
+        int res1 = instance.makeMove(new Move(2, 2, player1));
+        int res2 = instance.makeMove(new Move(4, 6, player2));
 
         assertEquals(0, res1);
         assertEquals(0, res2);
@@ -126,7 +126,7 @@ public class BoardTest {
         System.out.println("checkMoveIsWin");
 
         int expResult = 1;
-        int result = instance.checkMoveIsWin(new Turn(9, 9, player1));
+        int result = instance.checkMoveIsWin(new Move(9, 9, player1));
         assertEquals(expResult, result);
     }
 
@@ -134,7 +134,7 @@ public class BoardTest {
     public void TestWinNorth() {
         int expResult = 1;
         int result;
-        result = instance.checkMoveIsWin(new Turn(9, 8, player1));
+        result = instance.checkMoveIsWin(new Move(9, 8, player1));
         assertEquals(expResult, result);
     }
 
@@ -142,7 +142,7 @@ public class BoardTest {
     public void TestWinSE() {
         int expResult = 1;
         int result;
-        result = instance.checkMoveIsWin(new Turn(11, 11, player1));
+        result = instance.checkMoveIsWin(new Move(11, 11, player1));
         assertEquals(expResult, result);
     }
 
@@ -150,7 +150,7 @@ public class BoardTest {
     public void TestWinNW() {
         int expResult = 1;
         int result;
-        result = instance.checkMoveIsWin(new Turn(9, 7, player1));
+        result = instance.checkMoveIsWin(new Move(9, 7, player1));
         assertEquals(expResult, result);
     }
 
@@ -159,10 +159,10 @@ public class BoardTest {
         int expResult = 0;
         int result;
 
-        result = instance.checkMoveIsWin(new Turn(8, 13, player1));
+        result = instance.checkMoveIsWin(new Move(8, 13, player1));
         assertEquals(expResult, result);
 
-        result = instance.checkMoveIsWin(new Turn(16, 16, player1));
+        result = instance.checkMoveIsWin(new Move(16, 16, player1));
         assertEquals(expResult, result);
     }
 
@@ -171,10 +171,10 @@ public class BoardTest {
         int expResult = 0;
         int result;
 
-        result = instance.checkMoveIsWin(new Turn(0, 0, player1));
+        result = instance.checkMoveIsWin(new Move(0, 0, player1));
         assertEquals(expResult, result);
 
-        result = instance.checkMoveIsWin(new Turn(19, 19, player1));
+        result = instance.checkMoveIsWin(new Move(19, 19, player1));
         assertEquals(expResult, result);
     }
 
@@ -183,7 +183,7 @@ public class BoardTest {
         int result;
         int expResult = 0;
 
-        result = instance.checkMoveIsWin(new Turn(0, 6, player1));
+        result = instance.checkMoveIsWin(new Move(0, 6, player1));
         assertEquals(expResult, result);
     }
 }

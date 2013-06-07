@@ -37,7 +37,7 @@ public class NetworkPlayer extends Player {
     }
 
     @Override
-    public Turn makeAMove() {
+    public Move makeAMove() {
         // Send make a move request over network then wait
         System.out.println("Sending player command");
         this.outStream.write("YOUR-TURN\n");
@@ -46,7 +46,7 @@ public class NetworkPlayer extends Player {
             result = this.inStream.readLine();
             String[] cmdTokens = result.split(" ");
             if (cmdTokens[0].equals("PLAY")) {
-                return new Turn(Integer.parseInt(cmdTokens[1]),
+                return new Move(Integer.parseInt(cmdTokens[1]),
                         Integer.parseInt(cmdTokens[2]), this);
             } else {
                 // TODO some error handling here. perhaps a resend would be
