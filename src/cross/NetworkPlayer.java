@@ -41,6 +41,7 @@ public class NetworkPlayer extends Player {
         // Send make a move request over network then wait
         System.out.println("Sending player command");
         this.outStream.write("YOUR-TURN\n");
+        this.outStream.flush();
         String result;
         try {
             result = this.inStream.readLine();
@@ -51,6 +52,7 @@ public class NetworkPlayer extends Player {
             } else {
                 // TODO some error handling here. perhaps a resend would be
                 // appropriate?
+                return this.makeAMove();
             }
         } catch (IOException ex) {
             Logger.getLogger(NetworkPlayer.class.getName()).log(Level.SEVERE, null, ex);
