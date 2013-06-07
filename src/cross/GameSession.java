@@ -86,5 +86,9 @@ public class GameSession {
         // TODO Make a formal message (over the net)
         System.out.println("Hey, game ended!");
         System.out.println(msg);
+        
+        for (Player player : playerList) {
+            player.signalGameEnded(1, p);
+        }
     }
 }
