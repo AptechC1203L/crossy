@@ -75,6 +75,8 @@ public class GameSession {
         return this.board;
     }
 
+    // TODO This should also return a list of winning moves to help visualize
+    // them.
     /**
      * This method checks whether a move is a winning move. It should be called
      * after each move is made.
@@ -85,7 +87,7 @@ public class GameSession {
      * draw.
      *
      */
-    public int checkMoveIsWin(Move move) {
+    private int checkMoveIsWin(Move move) {
         Player p = move.getPlayer();
         int row = move.getRow();
         int column = move.getColumn();
