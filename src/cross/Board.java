@@ -15,7 +15,7 @@ public class Board {
 
     public Board(int width, int height, int winLen) {
         this.board = new Player[height][width];
-        this.winLen = this.winLen;
+        this.winLen = winLen;
     }
 
     public Player get(int row, int col) {
@@ -59,6 +59,7 @@ public class Board {
      * @param this.winLen the Number of consecutive move to win
      * @return 0 if no one wins, 1 if the move is a winning one, -1 if it's a
      * draw.
+     *
      */
     public int checkMoveIsWin(Turn move) {
         Player p = move.getPlayer();
