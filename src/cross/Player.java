@@ -12,11 +12,9 @@ import java.util.Scanner;
  */
 public class Player {
 
-    private char signature;
-    private String name;
+    protected String name;
 
-    public Player(char signature, String name) {
-        this.signature = signature;
+    public Player(String name) {
         this.name = name;
     }
 
@@ -31,18 +29,13 @@ public class Player {
     }
 
     public char getSignature() {
-        return this.signature;
+        return this.name.charAt(0);
     }
 
     public String getName() {
         return this.name;
     }
-    
-    public void setName(String name) {
-        this.name = name;
-    }
 
     void signalGameEnded(int status, Player player) {
-        
     }
 }

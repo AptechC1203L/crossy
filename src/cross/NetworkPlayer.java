@@ -8,6 +8,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.logging.Level;
@@ -17,30 +18,57 @@ import java.util.logging.Logger;
  *
  * @author trungnd_b01414
  */
-public class NetworkPlayer extends Player {
+public class NetworkPlayer extends Player implements GameEventListener {
 
     private final ServerSocket serverSocket;
-    private final PrintWriter outStream;
-    private final BufferedReader inStream;
+    private PrintWriter outStream;
+    private BufferedReader inStream;
+    private Socket conn;
 
-    public NetworkPlayer(char signature) throws IOException {
-        super(signature, "No Name");
-
+    public NetworkPlayer() throws IOException {
+        super("No Name");
         serverSocket = new ServerSocket(1337);
-        Socket conn = serverSocket.accept();
+    }
+
+    public void waitForConnection() throws IOException {
+
+        conn = serverSocket.accept();
 
         outStream = new PrintWriter(conn.getOutputStream());
         inStream = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 
         // Negotiation
-        this.setName(conn.getInetAddress().toString());
+        while (true) {
+            String[] msg = inStream.readLine().split(" ");
+            if (msg[0].equals("JOIN")) {
+                this.name = msg[1];
+                break;
+            }
+        }
+    }
+
+    public void sendServerName(String name) {
+        this.send("JOIN " + name);
+    }
+
+    public void sendBoardInfo(Board board) {
+        this.send("BOARD " + board.getWidth() + " " + board.getHeight());
+    }
+
+    public void waitForClientToStart() throws IOException {
+        while (true) {
+            String msg = inStream.readLine();
+            if ("START".equals(msg)) {
+                break;
+            }
+        }
     }
 
     @Override
     public Move makeAMove() {
         // Send make a move request over network then wait
         System.out.println("Sending player command");
-        this.outStream.write("YOUR-TURN\n");
+        this.send("YOUR-TURN");
         this.outStream.flush();
         String result;
         try {
@@ -60,8 +88,26 @@ public class NetworkPlayer extends Player {
         return null;
     }
 
+    public InetAddress getAddress() {
+        return this.conn.getInetAddress();
+    }
+
+    private void send(String msg) {
+        this.outStream.write(msg + "\n");
+        this.outStream.flush();
+    }
+
     @Override
-    void signalGameEnded(int status, Player p) {
-        this.outStream.write("END " + p.getName());
+    public void onMoveMade(Move move) {
+        this.send("PLAY " + move.getPlayer().getName() + " " + move.getRow() + " " + move.getColumn());
+    }
+
+    @Override
+    public void onGameEnd(int result, Object arg) {
+        if (result == 1) {
+            this.send("GAME-END " + result + " " + ((Player) arg).getName());
+        } else if (result == -1) {
+            this.send("GAME-END " + result);
+        }
     }
 }

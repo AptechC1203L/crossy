@@ -12,7 +12,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
+import java.util.concurrent.BlockingQueue;
 
 /**
  *
@@ -24,11 +24,17 @@ public class GameClient {
     private BufferedReader inStream;
     private boolean gameStarted;
     private List<GameEventListener> gameEventListeners;
+    private BlockingQueue<Move> ourNextMove;
+    private Player ourPlayer;
 
-    public GameClient() throws IOException {
+    public GameClient(Player ourPlayer, BlockingQueue<Move> ourNextMove) {
         this.gameEventListeners = new ArrayList<>();
         this.gameStarted = false;
+        this.ourPlayer = ourPlayer;
+        this.ourNextMove = ourNextMove;
+    }
 
+    public void connect() throws IOException {
         // TODO autodiscovery
         Socket conn = new Socket();
         conn.connect(new InetSocketAddress("localhost", 1337));
@@ -37,27 +43,61 @@ public class GameClient {
         inStream = new BufferedReader(new InputStreamReader(conn.getInputStream()));
     }
 
-    public void startGame() throws IOException {
-        outStream.write("START");
+    public Player waitForServerPlayer() throws IOException {
+        // TODO Send server our player info
+        this.send("JOIN " + this.ourPlayer.getName() + " " + this.ourPlayer.getSignature());
+        while (true) {
+            String[] tokens = this.inStream.readLine().split(" ");
+            if (tokens[0].equals("JOIN")) {
+                return new Player(tokens[1]);
+            }
+        }
+    }
+
+    public Board waitForBoardInfo() throws IOException {
+        while (true) {
+            String[] tokens = this.inStream.readLine().split(" ");
+            if (tokens[0].equals("BOARD")) {
+                int width = Integer.parseInt(tokens[1]);
+                int height = Integer.parseInt(tokens[2]);
+                return new Board(width, height);
+            }
+        }
+    }
+
+    public void startGame() throws IOException, InterruptedException {
+        this.send("START");
 
         while (true) {
             String msg = inStream.readLine();
+            System.out.println(msg);
             String[] tokens = msg.split(" ");
             switch (tokens[0]) {
                 case "GAME-START":
                     break;
                 case "QUIT":
-                    onPlayerDisconnected();
+                    this.onPlayerDisconnected();
+                    break;
                 case "PLAY":
+                    // TODO Null check
                     String player = tokens[1];
+                    if (player.equals(this.ourPlayer.getName())) {
+                        break;
+                    }
                     int row = Integer.parseInt(tokens[2]);
                     int col = Integer.parseInt(tokens[3]);
-                    onMoveMade(new Move(row, col, new Player('X', player)));
+                    this.onMoveMade(new Move(row, col, new Player(player)));
+                    break;
                 case "YOUR-TURN":
                     onOurTurn();
+                    break;
                 case "GAME-END":
                     int result = Integer.parseInt(tokens[1]);
-                    this.onGameEnd(result, null);
+                    if (result == 1) {
+                        this.onGameEnd(result, new Player(tokens[2]));
+                    } else if (result == -1) {
+                        this.onGameEnd(result, null);
+                    }
             }
         }
     }
@@ -78,16 +118,17 @@ public class GameClient {
         }
     }
 
-    private void onOurTurn() {
-        System.out.println("Hey, make a move:");
-        Scanner s = new Scanner(System.in);
-        int row = s.nextInt();
-        int col = s.nextInt();
-
-        this.outStream.write("PLAY " + row + " " + col);
+    private void onOurTurn() throws InterruptedException {
+        Move move = this.ourNextMove.take();
+        this.send("PLAY " + move.getRow() + " " + move.getColumn());
     }
 
     public void addGameEventListener(GameEventListener listener) {
         this.gameEventListeners.add(listener);
+    }
+
+    private void send(String msg) {
+        this.outStream.write(msg + "\n");
+        this.outStream.flush();
     }
 }

@@ -1,0 +1,104 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package cross;
+
+import java.io.IOException;
+import java.util.Scanner;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+/**
+ *
+ * @author chin
+ */
+public class CrossClient implements GameEventListener {
+
+    private final ArrayBlockingQueue<Move> ourNextmove;
+
+    public static void main(String[] args) throws IOException, InterruptedException {
+        CrossClient crossClient = new CrossClient();
+    }
+    private final GameClient gameClient;
+    private final Board board;
+    private final Player serverPlayer;
+
+    public CrossClient() throws IOException, InterruptedException {
+        final Player chin = new Player("Chin_Client");
+
+        ourNextmove = new ArrayBlockingQueue<>(1);
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // Very primitive, we don't even check for our turn here
+                Scanner s = new Scanner(System.in);
+                while (true) {
+                    int row = s.nextInt();
+                    int col = s.nextInt();
+                    try {
+                        Move move = new Move(row, col, chin);
+                        ourNextmove.put(move);
+                        board.makeMove(move);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(CrossClient.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
+        }).start();
+
+
+        gameClient = new GameClient(chin, ourNextmove);
+
+        gameClient.addGameEventListener(this);
+        gameClient.connect();
+
+        serverPlayer = gameClient.waitForServerPlayer();
+        board = gameClient.waitForBoardInfo();
+
+        System.out.format("Server name: %s\nBoard %dx%d\n",
+                serverPlayer.getName(),
+                board.getHeight(),
+                board.getWidth());
+        // Maybe we'll wait here a bit before sending the start signal. The other
+        // end will have to wait for us.
+
+        gameClient.startGame();
+    }
+
+    @Override
+    public void onMoveMade(Move move) {
+        char symbol;
+        Player p;
+
+        System.out.format("Player %s made a move: %d %d\n",
+                move.getPlayer().getName(),
+                move.getRow(),
+                move.getColumn());
+
+        board.makeMove(move);
+
+        for (int i = 0; i < board.getHeight(); i++) {
+            for (int k = 0; k < board.getWidth(); k++) {
+                if ((p = board.get(i, k)) != null) {
+                    symbol = p.getSignature();
+                } else {
+                    symbol = '-';
+                }
+                System.out.print(symbol + " ");
+            }
+            System.out.println("");
+        }
+    }
+
+    @Override
+    public void onGameEnd(int result, Object arg) {
+        if (result == 1) {
+            System.out.println("Game ended, player " + ((Player) arg).getName() + " won!");
+        } else if (result == 0) {
+            System.out.println("It's a draw...");
+        }
+    }
+}

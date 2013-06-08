@@ -19,20 +19,33 @@ public class Cross implements GameEventListener {
     private Board board;
 
     public static void main(String[] args) throws IOException {
-        Player player1 = new Player('X', "Chin");
-//        Player player1 = new NetworkPlayer('X');
-        Player player2 = new Player('O', "Kin");
+//        Player player1 = new Player('X', "Chin");
+        NetworkPlayer player1 = new NetworkPlayer();
+        Player player2 = new Player("Kin");
+
+        Board board = new Board(9, 9);
+
+        Cross c = new Cross();
+        c.board = board;
 
         ArrayList<Player> playerList = new ArrayList<>();
         playerList.add(player1);
         playerList.add(player2);
 
-        GameSession gameSession = new GameSession(playerList, 9, 2);
+        System.out.println("Waiting for remote connection...");
+        player1.waitForConnection();
+        System.out.format("Player %s at %s connected!\n", player1.getName(), player1.getAddress().toString());
 
-        Cross c = new Cross();
-        c.board = gameSession.getBoard();
+        player1.sendServerName(player2.getName());
+        player1.sendBoardInfo(board);
+
+        player1.waitForClientToStart();
+        System.out.println("Game started!");
+
+        GameSession gameSession = new GameSession(playerList, board, 2);
 
         gameSession.addGameEventListener(c);
+        gameSession.addGameEventListener(player1);
 
         gameSession.takeTurn();
     }
@@ -59,7 +72,7 @@ public class Cross implements GameEventListener {
     @Override
     public void onGameEnd(int result, Object arg) {
         if (result == 1) {
-            System.out.println("Game ended, player " + ((Player) arg).getName());
+            System.out.println("Game ended, player " + ((Player) arg).getName() + " won!");
         } else if (result == 0) {
             System.out.println("It's a draw...");
         }

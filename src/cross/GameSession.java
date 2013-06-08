@@ -19,11 +19,11 @@ public class GameSession {
     private boolean gameStillRunning;
     private int winLen;
 
-    public GameSession(List<Player> playerList, int boardSize, int winLen) {
+    public GameSession(List<Player> playerList, Board board, int winLen) {
         // TODO check that winLen <= boardSize
         this.playerList = playerList;
         this.winLen = winLen;
-        this.board = new Board(boardSize, boardSize);
+        this.board = board;
         this.gameStillRunning = false;
         this.gameEventListeners = new ArrayList<>();
     }
