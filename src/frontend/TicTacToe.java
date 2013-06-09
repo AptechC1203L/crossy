@@ -20,7 +20,7 @@ public class TicTacToe extends JFrame {
      */
     public TicTacToe() {
         super("Tic Tac Toe");
-        add(new Board());        
+        add(new Board());
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(300, 320);
         setResizable(false);

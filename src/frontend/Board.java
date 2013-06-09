@@ -22,9 +22,12 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
+import java.util.concurrent.ArrayBlockingQueue;
 import javax.swing.ImageIcon;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import static javax.swing.JFrame.EXIT_ON_CLOSE;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
@@ -33,15 +36,17 @@ import javax.swing.Timer;
  * @author thinhpham
  */
 public class Board extends JPanel implements ActionListener, GameEventListener {
-    Timer timer;
-    Cell cell1, cell2, cell3, cell4, cell5, cell6, cell7, cell8, cell9;
-    Image imgX;
-    Image imgO;
-    boolean turnX;
-    char winner;
-    boolean inGame = true;
-    ArrayList<Cell> listX;
-    ArrayList<Cell> listO;
+    private Timer timer;
+    private Cell cell1, cell2, cell3, cell4, cell5, cell6, cell7, cell8, cell9;
+    private Image imgX;
+    private Image imgO;
+    private boolean turnX;
+    private boolean inGame = true;
+    private ArrayList<Cell> listX;
+    private ArrayList<Cell> listO;
+    private ArrayBlockingQueue<Move> nextMove;
+    private Player remotePlayer;
+    private Player localPlayer;
     
     public Board() {
         listX = new ArrayList<Cell>();
@@ -55,6 +60,7 @@ public class Board extends JPanel implements ActionListener, GameEventListener {
         cell7 = new Cell();
         cell8 = new Cell();
         cell9 = new Cell();
+        remotePlayer = new Player("O");
         
         initGame();
         ImageIcon iix = new ImageIcon("img/x.png");
@@ -74,82 +80,16 @@ public class Board extends JPanel implements ActionListener, GameEventListener {
                 int y = me.getY();
                 int row = y/100;
                 if(turnX == true) {
-                    if(row == 0 && col == 0 && cell1.isEditable()) {
-                        cell1.setValue('x');
-                        listX.add(cell1);
-                        turnX = false;
-                    } else if (col == 1 && row == 0 && cell2.isEditable()) {
-                        cell2.setValue('x');
-                        listX.add(cell2);
-                        turnX = false;
-                    } else if (col == 2 && row == 0 && cell3.isEditable()) {
-                        cell3.setValue('x');
-                        listX.add(cell3);
-                        turnX = false;
-                    } else if (col == 0 && row == 1 && cell4.isEditable()) {
-                        cell4.setValue('x');
-                        listX.add(cell4);
-                        turnX = false;
-                    } else if (col == 1 && row == 1 && cell5.isEditable()) {
-                        cell5.setValue('x');
-                        listX.add(cell5);
-                        turnX = false;
-                    } else if (x > 200 && x < 300 && y < 200 && y > 100 && cell6.isEditable()) {
-                        cell6.setValue('x');
-                        listX.add(cell6);
-                        turnX = false;
-                    } else if (x < 100 && y < 300 && y > 200 && cell7.isEditable()) {
-                        cell7.setValue('x');
-                        listX.add(cell7);
-                        turnX = false;
-                    } else if (x > 100 && x < 200 && y < 300 && y > 200 && cell8.isEditable()) {
-                        cell8.setValue('x');
-                        listX.add(cell8);
-                        turnX = false;
-                    } else if (x > 200 && x < 300 && y < 300 && y > 200 && cell9.isEditable()) {
-                        cell9.setValue('x');
-                        listX.add(cell9);
-                        turnX = false;
-                    }
-                    
+                   Cell cell = getCell(row, col);
+                   if(cell.isEditable()) {
+                       listX.add(cell);
+                       nextMove.add(new Move(row, col, remotePlayer));
+                   }                    
                 } else {
-                    if(x < 100 && y < 100 && cell1.isEditable()) {
-                        cell1.setValue('o');
-                        listO.add(cell1);
-                        turnX = true;
-                    } else if (x > 100 && x < 200 && y < 100 && cell2.isEditable()) {
-                        cell2.setValue('o');
-                        listO.add(cell2);
-                        turnX = true;
-                    } else if (x > 200 && x < 300 && y < 100 && cell3.isEditable()) {
-                        cell3.setValue('o');
-                        listO.add(cell3);
-                        turnX = true;
-                    } else if (x < 100 && y < 200 && y > 100 && cell4.isEditable()) {
-                        cell4.setValue('o');
-                        listO.add(cell4);
-                        turnX = true;
-                    } else if (x > 100 && x < 200 && y < 200 && y > 100 && cell5.isEditable()) {
-                        cell5.setValue('o');
-                        listO.add(cell5);
-                        turnX = true;
-                    } else if (x > 200 && x < 300 && y < 200 && y > 100 && cell6.isEditable()) {
-                        cell6.setValue('o');
-                        listO.add(cell6);
-                        turnX = true;
-                    } else if (x < 100 && y < 300 && y > 200 && cell7.isEditable()) {
-                        cell7.setValue('o');
-                        listO.add(cell7);
-                        turnX = true;
-                    } else if (x > 100 && x < 200 && y < 300 && y > 200 && cell8.isEditable()) {
-                        cell8.setValue('o');
-                        listO.add(cell8);
-                        turnX = true;
-                    } else if (x > 200 && x < 300 && y < 300 && y > 200 && cell9.isEditable()) {
-                        cell9.setValue('o');
-                        listO.add(cell9);
-                        turnX = true;
-                    }
+                    Cell cell = getCell(row, col);
+                    if(cell.isEditable()) {
+                       listO.add(cell);
+                   }                     
                 }
             }
             
@@ -187,8 +127,6 @@ public class Board extends JPanel implements ActionListener, GameEventListener {
         Graphics2D g2 = (Graphics2D) g;
         if(inGame) {
             render(g);
-        } else {
-            gameOver(g);
         }
     }
     
@@ -255,28 +193,9 @@ public class Board extends JPanel implements ActionListener, GameEventListener {
         }
     } 
     
-    public void gameOver(Graphics g) {
-        render(g);
-        Graphics2D g2 = (Graphics2D) g;
-        g2.setPaint(new Color(0, 0, 0, 128));
-        g2.setColor(new Color(0, 0, 0, 128));
-        g2.setComposite(AlphaComposite.SrcOver.derive(0.8f));
-        g2.fillRoundRect(50, 50, 200, 200, 10, 10);
-        g2.setComposite(AlphaComposite.SrcOver.derive(1.0f));
-        g2.setColor(Color.WHITE);
-        g2.setPaint(Color.WHITE);
-        
-        g2.setFont(new Font("Lucida Sans", Font.BOLD, 30));
-        g2.drawString(winner + " win!", 100, 150);
-    }
-
     @Override
     public void actionPerformed(ActionEvent ae) {        
         repaint();
-        if(listX.contains(cell1) && listX.contains(cell2) && listX.contains(cell3)) {
-            inGame = false;
-            winner = 'x';
-        }
     }
 
     @Override
@@ -285,15 +204,19 @@ public class Board extends JPanel implements ActionListener, GameEventListener {
         int row = move.getRow();
         Player player = move.getPlayer();
         String playerName = player.getName();
-        if(playerName.equals("X")) {
-            
+        Cell cell = getCell(row, col);
+        
+        if(playerName.equals("X") && !listX.contains(cell) && !listO.contains(cell)) {
+            listX.add(cell);
         } else {
-            
+            listO.add(cell);
         }
     }
 
     @Override
     public void onGameEnd(int result, Object arg) {
-        
+        inGame = false;
+        Player p = (Player) arg;
+        JOptionPane.showMessageDialog(this, "Player " + p.getName() + "has won!");
     }
 }

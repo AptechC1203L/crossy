@@ -111,7 +111,7 @@ public class CrossClient implements GameEventListener {
     public void onGameEnd(int result, Object arg) {
         if (result == 1) {
             System.out.println("Game ended, player " + ((Player) arg).getName() + " won!");
-        } else if (result == 0) {
+        } else if (result == -1) {
             System.out.println("It's a draw...");
         }
     }
