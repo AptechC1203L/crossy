@@ -67,7 +67,6 @@ public class NetworkPlayer extends Player implements GameEventListener {
     @Override
     public Move makeAMove() {
         // Send make a move request over network then wait
-        System.out.println("Sending player command");
         this.send("YOUR-TURN");
         this.outStream.flush();
         String result;

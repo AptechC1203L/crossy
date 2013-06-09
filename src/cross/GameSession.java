@@ -87,7 +87,7 @@ public class GameSession {
      * draw.
      *
      */
-    private int checkMoveIsWin(Move move) {
+    public int checkMoveIsWin(Move move) {
         Player p = move.getPlayer();
         int row = move.getRow();
         int column = move.getColumn();

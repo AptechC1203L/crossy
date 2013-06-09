@@ -13,6 +13,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  *
@@ -26,12 +27,14 @@ public class GameClient {
     private List<GameEventListener> gameEventListeners;
     private BlockingQueue<Move> ourNextMove;
     private Player ourPlayer;
+    private final AtomicBoolean isOurTurn;
 
-    public GameClient(Player ourPlayer, BlockingQueue<Move> ourNextMove) {
+    public GameClient(Player ourPlayer, BlockingQueue<Move> ourNextMove, AtomicBoolean isOurTurn) {
         this.gameEventListeners = new ArrayList<>();
         this.gameStarted = false;
         this.ourPlayer = ourPlayer;
         this.ourNextMove = ourNextMove;
+        this.isOurTurn = isOurTurn;
     }
 
     public void connect() throws IOException {
@@ -70,14 +73,13 @@ public class GameClient {
 
         while (true) {
             String msg = inStream.readLine();
-            System.out.println(msg);
             String[] tokens = msg.split(" ");
             switch (tokens[0]) {
                 case "GAME-START":
                     break;
                 case "QUIT":
                     this.onPlayerDisconnected();
-                    break;
+                    return;
                 case "PLAY":
                     // TODO Null check
                     String player = tokens[1];
@@ -98,6 +100,7 @@ public class GameClient {
                     } else if (result == -1) {
                         this.onGameEnd(result, null);
                     }
+                    return;
             }
         }
     }
@@ -119,8 +122,10 @@ public class GameClient {
     }
 
     private void onOurTurn() throws InterruptedException {
+        this.isOurTurn.set(true);
         Move move = this.ourNextMove.take();
         this.send("PLAY " + move.getRow() + " " + move.getColumn());
+        this.isOurTurn.set(false);
     }
 
     public void addGameEventListener(GameEventListener listener) {
