@@ -21,7 +21,7 @@ public class Cross implements GameEventListener {
     public static void main(String[] args) throws IOException {
 //        Player player1 = new Player('X', "Chin");
         NetworkPlayer player1 = new NetworkPlayer();
-        Player player2 = new Player("Kin");
+        Player player2 = new Player("X");
 
         Board board = new Board(9, 9);
 
