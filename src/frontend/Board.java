@@ -86,17 +86,14 @@ public class Board extends JPanel implements ActionListener, GameEventListener {
                 int col = x / 100;
                 int y = me.getY();
                 int row = y/100;
-                if(turnX == true) {
+                
+                if(gameClient.getWhoseTurn().get() == localPlayer) {
                    Cell cell = getCell(row, col);
                    if(cell.isEditable()) {
+                       cell.setValue('o');
+                       nextMove.offer(new Move(row, col, remotePlayer));
                        listX.add(cell);
-                       nextMove.add(new Move(row, col, remotePlayer));
-                   }                    
-                } else {
-                    Cell cell = getCell(row, col);
-                    if(cell.isEditable()) {
-                       listO.add(cell);
-                   }                     
+                   }
                 }
             }
         });
@@ -146,6 +143,7 @@ public class Board extends JPanel implements ActionListener, GameEventListener {
         inGame = false;
     }
 
+    @Override
     public void paint(Graphics g) {
         super.paint(g);
         Graphics2D g2 = (Graphics2D) g;
@@ -229,10 +227,11 @@ public class Board extends JPanel implements ActionListener, GameEventListener {
         Player player = move.getPlayer();
         String playerName = player.getName();
         Cell cell = getCell(row, col);
-        
         if(playerName.equals("X") && !listX.contains(cell) && !listO.contains(cell)) {
+            cell.setValue('x');
             listX.add(cell);
         } else {
+            cell.setValue('o');
             listO.add(cell);
         }
     }
