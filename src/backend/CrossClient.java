@@ -41,6 +41,8 @@ public class CrossClient implements GameEventListener {
         isOurTurn = new AtomicBoolean(false);
         running = true;
 
+        gameClient = new GameClient(chin, ourNextmove);
+
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -49,7 +51,7 @@ public class CrossClient implements GameEventListener {
                 while (running) {
                     int row = s.nextInt();
                     int col = s.nextInt();
-                    if (isOurTurn.get()) {
+                    if (gameClient.getWhoseTurn().get() == chin) {
                         try {
                             Move move = new Move(row, col, chin);
                             ourNextmove.put(move);
@@ -62,7 +64,6 @@ public class CrossClient implements GameEventListener {
             }
         }).start();
 
-        gameClient = new GameClient(chin, ourNextmove, isOurTurn);
 
         gameClient.addGameEventListener(this);
         gameClient.connect();

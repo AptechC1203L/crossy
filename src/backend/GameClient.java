@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  *
@@ -27,14 +28,15 @@ public class GameClient {
     private List<GameEventListener> gameEventListeners;
     private BlockingQueue<Move> ourNextMove;
     private Player ourPlayer;
-    private final AtomicBoolean isOurTurn;
+    private Player remotePlayer;
+    private final AtomicReference<Player> whoseTurn;
 
-    public GameClient(Player ourPlayer, BlockingQueue<Move> ourNextMove, AtomicBoolean isOurTurn) {
+    public GameClient(Player ourPlayer, BlockingQueue<Move> ourNextMove) {
         this.gameEventListeners = new ArrayList<>();
         this.gameStarted = false;
         this.ourPlayer = ourPlayer;
         this.ourNextMove = ourNextMove;
-        this.isOurTurn = isOurTurn;
+        this.whoseTurn = new AtomicReference<>();
     }
 
     public void connect() throws IOException {
@@ -52,7 +54,8 @@ public class GameClient {
         while (true) {
             String[] tokens = this.inStream.readLine().split(" ");
             if (tokens[0].equals("JOIN")) {
-                return new Player(tokens[1]);
+                remotePlayer = new Player(tokens[1]);
+                return remotePlayer;
             }
         }
     }
@@ -122,10 +125,10 @@ public class GameClient {
     }
 
     private void onOurTurn() throws InterruptedException {
-        this.isOurTurn.set(true);
+        this.whoseTurn.set(ourPlayer);
         Move move = this.ourNextMove.take();
         this.send("PLAY " + move.getRow() + " " + move.getColumn());
-        this.isOurTurn.set(false);
+        this.whoseTurn.set(remotePlayer);
     }
 
     public void addGameEventListener(GameEventListener listener) {
@@ -135,5 +138,9 @@ public class GameClient {
     private void send(String msg) {
         this.outStream.write(msg + "\n");
         this.outStream.flush();
+    }
+
+    public AtomicReference<Player> getWhoseTurn() {
+        return this.whoseTurn;
     }
 }
