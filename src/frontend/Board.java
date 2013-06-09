@@ -4,6 +4,7 @@
  */
 package frontend;
 
+import backend.GameClient;
 import backend.GameEventListener;
 import backend.Move;
 import backend.Player;
@@ -21,6 +22,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.ArrayBlockingQueue;
 import javax.swing.ImageIcon;
@@ -47,10 +49,13 @@ public class Board extends JPanel implements ActionListener, GameEventListener {
     private ArrayBlockingQueue<Move> nextMove;
     private Player remotePlayer;
     private Player localPlayer;
-    
+
+    GameClient gameClient;
+    private backend.Board board;
+
     public Board() {
-        listX = new ArrayList<Cell>();
-        listO = new ArrayList<Cell>();
+        listX = new ArrayList<>();
+        listO = new ArrayList<>();
         cell1 = new Cell();
         cell2 = new Cell();
         cell3 = new Cell();
@@ -60,23 +65,25 @@ public class Board extends JPanel implements ActionListener, GameEventListener {
         cell7 = new Cell();
         cell8 = new Cell();
         cell9 = new Cell();
-        remotePlayer = new Player("O");
-        
+
+        localPlayer = new Player("O");
+        nextMove = new ArrayBlockingQueue<>(1);
+        gameClient = new GameClient(localPlayer, nextMove);
+
         initGame();
         ImageIcon iix = new ImageIcon("img/x.png");
         imgX = iix.getImage();
         ImageIcon iio = new ImageIcon("img/o.png");
         imgO = iio.getImage();
-        
-        turnX = true;
-        
-        this.addMouseListener(new MouseAdapter() {
 
+        turnX = true;
+
+        this.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent me) {
                 System.out.println("x:" + me.getX() + " y:" + me.getY());
                 int x = me.getX();
-                int col = x/100;
+                int col = x / 100;
                 int y = me.getY();
                 int row = y/100;
                 if(turnX == true) {
@@ -92,44 +99,61 @@ public class Board extends JPanel implements ActionListener, GameEventListener {
                    }                     
                 }
             }
-            
         });
     }
-    
+
     public Cell getCell(int row, int col) {
-        if(row == 0 && col == 0) {
+        if (row == 0 && col == 0) {
             return cell1;
-        } else if(row == 0 && col == 1) {
+        } else if (row == 0 && col == 1) {
             return cell2;
-        } else if(row == 0 && col == 2) {
+        } else if (row == 0 && col == 2) {
             return cell3;
-        } else if(row == 1 && col == 0) {
+        } else if (row == 1 && col == 0) {
             return cell4;
-        } else if(row == 1 && col == 1) {
+        } else if (row == 1 && col == 1) {
             return cell5;
-        } else if(row == 1 && col == 2) {
+        } else if (row == 1 && col == 2) {
             return cell6;
-        } else if(row == 2 && col == 0) {
+        } else if (row == 2 && col == 0) {
             return cell7;
-        } else if(row == 2 && col == 1) {
+        } else if (row == 2 && col == 1) {
             return cell8;
         }
         return cell9;
     }
-    
+
     public void initGame() {
         timer = new Timer(17, this);
         timer.start();
     }
-    
+
+    public void run() throws IOException, InterruptedException {
+        gameClient.addGameEventListener(this);
+        gameClient.connect();
+
+        remotePlayer = gameClient.waitForServerPlayer();
+        board = gameClient.waitForBoardInfo();
+
+        System.out.format("Server name: %s\nBoard %dx%d\n",
+                remotePlayer.getName(),
+                board.getHeight(),
+                board.getWidth());
+        // Maybe we'll wait here a bit before sending the start signal. The other
+        // end will have to wait for us.
+
+        gameClient.startGame();
+        inGame = false;
+    }
+
     public void paint(Graphics g) {
         super.paint(g);
         Graphics2D g2 = (Graphics2D) g;
-        if(inGame) {
+        if (inGame) {
             render(g);
         }
     }
-    
+
     public void render(Graphics g) {
         Graphics2D g2 = (Graphics2D) g;
         g2.setColor(Color.black);
@@ -138,55 +162,55 @@ public class Board extends JPanel implements ActionListener, GameEventListener {
         g2.drawLine(200, 0, 200, 300);
         g2.drawLine(0, 100, 300, 100);
         g2.drawLine(0, 200, 300, 200);
-        if(cell1.getValue() == 'x') {
+        if (cell1.getValue() == 'x') {
             g2.drawImage(imgX, 0, 0, this);
         } else if (cell1.getValue() == 'o') {
             g2.drawImage(imgO, 0, 0, this);
         }
 
-        if(cell2.getValue() == 'x') {
+        if (cell2.getValue() == 'x') {
             g2.drawImage(imgX, 100, 0, this);
         } else if (cell2.getValue() == 'o') {
             g2.drawImage(imgO, 100, 0, this);
         }
 
-        if(cell3.getValue() == 'x') {
+        if (cell3.getValue() == 'x') {
             g2.drawImage(imgX, 200, 0, this);
         } else if (cell3.getValue() == 'o') {
             g2.drawImage(imgO, 200, 0, this);
         }
 
-        if(cell4.getValue() == 'x') {
+        if (cell4.getValue() == 'x') {
             g2.drawImage(imgX, 0, 100, this);
         } else if (cell4.getValue() == 'o') {
             g2.drawImage(imgO, 0, 100, this);
         }
 
-        if(cell5.getValue() == 'x') {
+        if (cell5.getValue() == 'x') {
             g2.drawImage(imgX, 100, 100, this);
         } else if (cell5.getValue() == 'o') {
             g2.drawImage(imgO, 100, 100, this);
         }
 
-        if(cell6.getValue() == 'x') {
+        if (cell6.getValue() == 'x') {
             g2.drawImage(imgX, 200, 100, this);
         } else if (cell6.getValue() == 'o') {
             g2.drawImage(imgO, 200, 100, this);
         }
 
-        if(cell7.getValue() == 'x') {
+        if (cell7.getValue() == 'x') {
             g2.drawImage(imgX, 0, 200, this);
         } else if (cell7.getValue() == 'o') {
             g2.drawImage(imgO, 0, 200, this);
         }
 
-        if(cell8.getValue() == 'x') {
+        if (cell8.getValue() == 'x') {
             g2.drawImage(imgX, 100, 200, this);
         } else if (cell8.getValue() == 'o') {
             g2.drawImage(imgO, 100, 200, this);
         }
 
-        if(cell9.getValue() == 'x') {
+        if (cell9.getValue() == 'x') {
             g2.drawImage(imgX, 200, 200, this);
         } else if (cell9.getValue() == 'o') {
             g2.drawImage(imgO, 200, 200, this);
@@ -194,7 +218,7 @@ public class Board extends JPanel implements ActionListener, GameEventListener {
     } 
     
     @Override
-    public void actionPerformed(ActionEvent ae) {        
+    public void actionPerformed(ActionEvent ae) {
         repaint();
     }
 
