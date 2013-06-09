@@ -42,7 +42,7 @@ public class Cross implements GameEventListener {
         player1.waitForClientToStart();
         System.out.println("Game started!");
 
-        GameSession gameSession = new GameSession(playerList, board, 2);
+        GameSession gameSession = new GameSession(playerList, board, 3);
 
         gameSession.addGameEventListener(c);
         gameSession.addGameEventListener(player1);
