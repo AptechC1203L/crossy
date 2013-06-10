@@ -17,7 +17,7 @@ import static org.junit.Assert.*;
  */
 public class BoardTest {
 
-    private Board instance;
+    private BoardModel instance;
     private Player player1;
     private Player player2;
 
@@ -34,7 +34,7 @@ public class BoardTest {
 
     @Before
     public void setUp() {
-        instance = new Board(20, 20);
+        instance = new BoardModel(20, 20);
     }
 
     @After

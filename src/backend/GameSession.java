@@ -6,6 +6,7 @@ package backend;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  *
@@ -15,11 +16,11 @@ public class GameSession {
 
     private List<Player> playerList;
     private List<GameEventListener> gameEventListeners;
-    private Board board;
+    private BoardModel board;
     private boolean gameStillRunning;
     private int winLen;
 
-    public GameSession(List<Player> playerList, Board board, int winLen) {
+    public GameSession(List<Player> playerList, BoardModel board, int winLen) {
         // TODO check that winLen <= boardSize
         this.playerList = playerList;
         this.winLen = winLen;
@@ -29,12 +30,16 @@ public class GameSession {
     }
 
     // Main game loop
-    public void takeTurn() {
+    public void takeTurn(AtomicReference<Player> whoseTurn) throws InterruptedException {
         this.gameStillRunning = true;
         while (this.gameStillRunning) {
             for (int i = 0; i < this.playerList.size(); i++) {
                 Player player = this.playerList.get(i);
+                whoseTurn.set(player);
+                System.out.println(whoseTurn.get().getName());
+                System.out.println("here");
                 Move move = player.makeAMove();
+                System.out.println("move");
                 if (this.board.makeMove(move) == -1) {
                     System.out.println("Wrong move!");
                     // Give them another chance
@@ -71,7 +76,7 @@ public class GameSession {
         this.gameEventListeners.add(listener);
     }
 
-    public Board getBoard() {
+    public BoardModel getBoard() {
         return this.board;
     }
 

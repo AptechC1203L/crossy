@@ -19,23 +19,21 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * @author trungnd_b01414
  */
-public class GameClient {
+public class Client {
 
     private PrintWriter outStream;
     private BufferedReader inStream;
-    private boolean gameStarted;
     private List<GameEventListener> gameEventListeners;
     private BlockingQueue<Move> ourNextMove;
     private Player ourPlayer;
     private Player remotePlayer;
-    private final AtomicReference<Player> whoseTurn;
+    private AtomicReference<Player> whoseTurn;
 
-    public GameClient(Player ourPlayer, BlockingQueue<Move> ourNextMove) {
+    public Client(Player ourPlayer, BlockingQueue<Move> ourNextMove, AtomicReference<Player> whoseTurn) {
         this.gameEventListeners = new ArrayList<>();
-        this.gameStarted = false;
         this.ourPlayer = ourPlayer;
         this.ourNextMove = ourNextMove;
-        this.whoseTurn = new AtomicReference<>();
+        this.whoseTurn = whoseTurn;
     }
 
     public void connect() throws IOException {
@@ -59,13 +57,13 @@ public class GameClient {
         }
     }
 
-    public Board waitForBoardInfo() throws IOException {
+    public BoardModel waitForBoardInfo() throws IOException {
         while (true) {
             String[] tokens = this.inStream.readLine().split(" ");
             if (tokens[0].equals("BOARD")) {
                 int width = Integer.parseInt(tokens[1]);
                 int height = Integer.parseInt(tokens[2]);
-                return new Board(width, height);
+                return new BoardModel(width, height);
             }
         }
     }
@@ -75,6 +73,7 @@ public class GameClient {
 
         while (true) {
             String msg = inStream.readLine();
+            System.out.println(msg);
             String[] tokens = msg.split(" ");
             switch (tokens[0]) {
                 case "GAME-START":
@@ -137,9 +136,5 @@ public class GameClient {
     private void send(String msg) {
         this.outStream.write(msg + "\n");
         this.outStream.flush();
-    }
-
-    public AtomicReference<Player> getWhoseTurn() {
-        return this.whoseTurn;
     }
 }

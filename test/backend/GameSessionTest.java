@@ -42,7 +42,7 @@ public class GameSessionTest {
         playerList.add(player1);
         playerList.add(player2);
 
-        instance = new GameSession(playerList, new Board(20, 20), 5);
+        instance = new GameSession(playerList, new BoardModel(20, 20), 5);
 
         /////////////////////////
         // Draw a "star" shape //

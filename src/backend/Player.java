@@ -4,7 +4,7 @@
  */
 package backend;
 
-import java.util.Scanner;
+import java.util.concurrent.BlockingQueue;
 
 /**
  *
@@ -13,19 +13,21 @@ import java.util.Scanner;
 public class Player {
 
     protected String name;
+    protected BlockingQueue<Move> ourNextMove;
 
+    public Player(String name, BlockingQueue<Move> ourNextMove) {
+        this.name = name;
+        this.ourNextMove = ourNextMove;
+        System.out.println(ourNextMove.hashCode());
+    }
+    
     public Player(String name) {
         this.name = name;
     }
 
-    public Move makeAMove() {
-        // TODO randomize or ask user
-        System.out.println("Hey, make a move, " + this.name + ":");
-        Scanner s = new Scanner(System.in);
-        int x = s.nextInt();
-        int y = s.nextInt();
-        Move t = new Move(x, y, this);
-        return t;
+    public Move makeAMove() throws InterruptedException {
+        System.out.println(this.ourNextMove);
+        return ourNextMove.take();
     }
 
     public char getSignature() {

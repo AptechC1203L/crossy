@@ -8,11 +8,11 @@ package backend;
  *
  * @author chin
  */
-public class Board {
+public class BoardModel {
 
     private Player[][] board;
 
-    public Board(int width, int height) {
+    public BoardModel(int width, int height) {
         this.board = new Player[height][width];
     }
 

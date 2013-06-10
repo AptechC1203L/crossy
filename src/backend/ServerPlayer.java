@@ -18,14 +18,14 @@ import java.util.logging.Logger;
  *
  * @author trungnd_b01414
  */
-public class NetworkPlayer extends Player implements GameEventListener {
+public class ServerPlayer extends Player implements GameEventListener {
 
     private final ServerSocket serverSocket;
     private PrintWriter outStream;
     private BufferedReader inStream;
     private Socket conn;
 
-    public NetworkPlayer() throws IOException {
+    public ServerPlayer() throws IOException {
         super("No Name");
         serverSocket = new ServerSocket(1337);
     }
@@ -51,7 +51,7 @@ public class NetworkPlayer extends Player implements GameEventListener {
         this.send("JOIN " + name);
     }
 
-    public void sendBoardInfo(Board board) {
+    public void sendBoardInfo(BoardModel board) {
         this.send("BOARD " + board.getWidth() + " " + board.getHeight());
     }
 
@@ -82,7 +82,7 @@ public class NetworkPlayer extends Player implements GameEventListener {
                 return this.makeAMove();
             }
         } catch (IOException ex) {
-            Logger.getLogger(NetworkPlayer.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ServerPlayer.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
     }
