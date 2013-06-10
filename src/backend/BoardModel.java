@@ -54,4 +54,8 @@ public class BoardModel {
         }
         return false;
     }
+    
+    public void clear() {
+        this.board = new Player[this.board.length][this.board[0].length];
+    }
 }
