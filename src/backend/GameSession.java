@@ -40,6 +40,13 @@ public class GameSession {
                 System.out.println(whoseTurn.get().getName());
                 
                 Move move = player.makeAMove();
+                
+                if (move == null) {
+                    // Client disconnected
+                    this.gameStillRunning = false;
+                    break;
+                }
+                
                 if (this.board.makeMove(move) == false) {
                     System.out.println("Wrong move!");
                     // Give them another chance
@@ -51,8 +58,8 @@ public class GameSession {
                     int result = this.checkMoveIsWin(move);
                     if (result == 1 || result == -1) {
                         // Tell everybody that the game ended
+                        // But a game-end also starts a new game
                         this.onGameEnd(result, player);
-                        this.gameStillRunning = false;
                         break;
                     }
                 }
@@ -64,6 +71,7 @@ public class GameSession {
         for (GameEventListener l : this.gameEventListeners) {
             l.onGameEnd(result, p);
         }
+        this.board.clear();
     }
 
     private void onMoveMade(Move move) {
@@ -82,6 +90,7 @@ public class GameSession {
 
     // TODO This should also return a list of winning moves to help visualize
     // them.
+    // TODO Actually implement the draw case
     /**
      * This method checks whether a move is a winning move. It should be called
      * after each move is made.

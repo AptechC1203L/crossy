@@ -41,7 +41,7 @@ public class GameFrame extends JFrame implements GameEventListener {
     /**
      * @param args the command line arguments
      */
-    public GameFrame() throws IOException, InterruptedException {
+    public GameFrame() {
         super("Tic Tac Toe");
 
         this.nextMove = new ArrayBlockingQueue<>(1);
@@ -51,26 +51,6 @@ public class GameFrame extends JFrame implements GameEventListener {
 //        this.setSize(300, 320);
 //        this.setResizable(false);
         this.setVisible(true);
-
-        Object[] options = {"Host a game",
-            "Join an existing game"};
-
-        final int n = JOptionPane.showOptionDialog(this,
-                "Would you like some green eggs to go "
-                + "with that ham?",
-                "A Silly Question",
-                JOptionPane.YES_NO_CANCEL_OPTION,
-                JOptionPane.QUESTION_MESSAGE,
-                null,
-                options,
-                options[1]);
-
-
-        if (n == 0) {
-            startServer();
-        } else if (n == 1) {
-            startClient();
-        }
     }
 
     /**
@@ -110,15 +90,23 @@ public class GameFrame extends JFrame implements GameEventListener {
         boardPanel.startTimer();
     }
 
-    public void startClient() throws IOException, InterruptedException {
+    public void startClient() {
         localPlayer = new Player("O", this.nextMove);
         final Client gameClient = new Client(localPlayer, nextMove, this.whoseTurn);
 
         gameClient.addGameEventListener(this);
-        gameClient.connect();
+        try {
+            gameClient.connect();
+            remotePlayer = gameClient.waitForServerPlayer();
+            boardModel = gameClient.waitForBoardInfo();
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(this,
+                    "Cannot connect to server",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
-        remotePlayer = gameClient.waitForServerPlayer();
-        boardModel = gameClient.waitForBoardInfo();
 
         this.initBoardPanel();
 
@@ -128,40 +116,74 @@ public class GameFrame extends JFrame implements GameEventListener {
                 boardModel.getWidth());
         // Maybe we'll wait here a bit before sending the start signal. The other
         // end will have to wait for us.
-
-        gameClient.startGame();
+        
+        JOptionPane.showMessageDialog(this,
+                "Game started, we go first.",
+                null,
+                JOptionPane.PLAIN_MESSAGE);
+        
+        try {
+            gameClient.startGame();
+        } catch (IOException | InterruptedException ex) {
+        } finally {
+            JOptionPane.showMessageDialog(this,
+                    "Server disconnected",
+                    null,
+                    JOptionPane.INFORMATION_MESSAGE);
+        }
     }
 
-    public void startServer() throws IOException, InterruptedException {
-        this.remotePlayer = new ServerPlayer();
-        localPlayer = new Player("X", this.nextMove);
+    public void startServer() {
+        GameSession gameSession = null;
+        try {
+            this.remotePlayer = new ServerPlayer();
+            localPlayer = new Player("X", this.nextMove);
 
-        ServerPlayer _remotePlayer = (ServerPlayer) this.remotePlayer;
+            ServerPlayer _remotePlayer = (ServerPlayer) this.remotePlayer;
 
-        // TODO Ask the user for the dimensions
-        boardModel = new backend.BoardModel(20, 20);
-        this.initBoardPanel();
+            // TODO Ask the user for the dimensions
+            boardModel = new backend.BoardModel(20, 20);
+            this.initBoardPanel();
 
-        ArrayList<Player> playerList = new ArrayList<>();
-        playerList.add(_remotePlayer);
-        playerList.add(localPlayer);
+            ArrayList<Player> playerList = new ArrayList<>();
+            playerList.add(_remotePlayer);
+            playerList.add(localPlayer);
 
-        System.out.println("Waiting for remote connection...");
-        _remotePlayer.waitForConnection();
-        System.out.format("Player %s at %s connected!\n", _remotePlayer.getName(), _remotePlayer.getAddress().toString());
+            System.out.println("Waiting for remote connection...");
+            _remotePlayer.waitForConnection();
+            System.out.format("Player %s at %s connected!\n", _remotePlayer.getName(), _remotePlayer.getAddress().toString());
 
-        _remotePlayer.sendServerName(localPlayer.getName());
-        _remotePlayer.sendBoardInfo(boardModel);
+            _remotePlayer.sendServerName(localPlayer.getName());
+            _remotePlayer.sendBoardInfo(boardModel);
 
-        _remotePlayer.waitForClientToStart();
-        System.out.println("Game started!");
+            _remotePlayer.waitForClientToStart();
+            JOptionPane.showMessageDialog(this,
+                    "Game started, they go first.",
+                    null,
+                    JOptionPane.PLAIN_MESSAGE);
 
-        final GameSession gameSession = new GameSession(playerList, boardModel, 5);
+            gameSession = new GameSession(playerList, boardModel, 5);
 
-        gameSession.addGameEventListener(_remotePlayer);
-        gameSession.addGameEventListener(this);
+            gameSession.addGameEventListener(_remotePlayer);
+            gameSession.addGameEventListener(this);
 
-        gameSession.takeTurn(whoseTurn);
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(this,
+                    "Cannot setup network.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        try {
+            gameSession.takeTurn(whoseTurn);
+        } catch (InterruptedException ex) {
+        } finally {
+            JOptionPane.showMessageDialog(this,
+                    "Client disconnected.",
+                    null,
+                    JOptionPane.INFORMATION_MESSAGE);
+        }
     }
 
     @Override
@@ -172,11 +194,36 @@ public class GameFrame extends JFrame implements GameEventListener {
     @Override
     public void onGameEnd(int result, Object arg) {
         Player p = (Player) arg;
-        JOptionPane.showMessageDialog(this, "Player " + p.getName() + " has won!");
+        JOptionPane.showMessageDialog(this, "Player " + p.getName() + " has won!\n"
+                + "Starting a new game...");
+    }
+
+    private void run() {
+        
+        Object[] options = {"Host a game",
+            "Join an existing game"};
+
+        final int n = JOptionPane.showOptionDialog(this,
+                "Would you like some green eggs to go "
+                + "with that ham?",
+                "A Silly Question",
+                JOptionPane.YES_NO_CANCEL_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                options,
+                options[1]);
+
+        if (n == 0) {
+            startServer();
+        } else if (n == 1) {
+            startClient();
+        }
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
         // TODO code application logic here
         GameFrame gameFrame = new GameFrame();
+        gameFrame.run();
+        gameFrame.dispose();
     }
 }

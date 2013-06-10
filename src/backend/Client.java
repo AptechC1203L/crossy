@@ -38,7 +38,7 @@ public class Client {
     }
 
     public void connect() throws IOException {
-        // TODO autodiscovery
+        // TODO autodiscovery with a UDP broadcast
         Socket conn = new Socket();
         conn.connect(new InetSocketAddress("localhost", 1337));
 
@@ -75,6 +75,10 @@ public class Client {
 
         while (true) {
             String msg = inStream.readLine();
+            if (msg == null) {
+                // Server disconnected
+                return;
+            }
             System.out.println(msg);
             String[] tokens = msg.split(" ");
             switch (tokens[0]) {
@@ -103,7 +107,6 @@ public class Client {
                     } else if (result == -1) {
                         this.onGameEnd(result, null);
                     }
-                    return;
             }
         }
     }
@@ -122,6 +125,7 @@ public class Client {
         for (GameEventListener l : this.gameEventListeners) {
             l.onGameEnd(result, arg);
         }
+        this.board.clear();
     }
 
     private void onOurTurn() throws InterruptedException {

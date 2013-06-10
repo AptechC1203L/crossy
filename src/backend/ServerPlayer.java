@@ -68,7 +68,6 @@ public class ServerPlayer extends Player implements GameEventListener {
     public Move makeAMove() {
         // Send make a move request over network then wait
         this.send("YOUR-TURN");
-        this.outStream.flush();
         String result;
         try {
             result = this.inStream.readLine();
@@ -82,7 +81,6 @@ public class ServerPlayer extends Player implements GameEventListener {
                 return this.makeAMove();
             }
         } catch (IOException ex) {
-            Logger.getLogger(ServerPlayer.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
     }
