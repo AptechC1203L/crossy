@@ -148,6 +148,14 @@ public class GameSessionTest {
         result = instance.checkMoveIsWin(new Move(11, 11, player1));
         assertEquals(expResult, result);
     }
+    
+    @Test
+    public void TestWinSW() {
+        int expResult = 1;
+        int result;
+        result = instance.checkMoveIsWin(new Move(8, 10, player1));
+        assertEquals(expResult, result);
+    }
 
     @Test
     public void TestWinNW() {

@@ -46,11 +46,11 @@ public class BoardTest {
      */
     @Test
     public void testMakeMove() {
-        int res1 = instance.makeMove(new Move(2, 2, player1));
-        int res2 = instance.makeMove(new Move(4, 6, player2));
+        boolean res1 = instance.makeMove(new Move(2, 2, player1));
+        boolean res2 = instance.makeMove(new Move(4, 6, player2));
 
-        assertEquals(0, res1);
-        assertEquals(0, res2);
+        assertEquals(true, res1);
+        assertEquals(true, res2);
 
         assertEquals(player1, instance.get(2, 2));
         assertEquals(player2, instance.get(4, 6));

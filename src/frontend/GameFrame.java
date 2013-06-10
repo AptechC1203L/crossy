@@ -11,6 +11,7 @@ import backend.GameSession;
 import backend.Move;
 import backend.Player;
 import backend.ServerPlayer;
+import java.awt.BorderLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
@@ -18,6 +19,8 @@ import java.util.ArrayList;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFrame;
 import static javax.swing.JFrame.EXIT_ON_CLOSE;
 import javax.swing.JOptionPane;
@@ -45,8 +48,8 @@ public class GameFrame extends JFrame implements GameEventListener {
         this.whoseTurn = new AtomicReference<>();
 
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-        this.setSize(300, 320);
-        this.setResizable(false);
+//        this.setSize(300, 320);
+//        this.setResizable(false);
         this.setVisible(true);
 
         Object[] options = {"Host a game",
@@ -75,7 +78,8 @@ public class GameFrame extends JFrame implements GameEventListener {
      */
     public void initBoardPanel() {
         boardPanel = new BoardPanel(this.boardModel);
-        this.add(boardPanel);
+        this.add(boardPanel, BorderLayout.CENTER);
+        this.pack();
         this.revalidate();
 
         boardPanel.addMouseListener(new MouseAdapter() {
@@ -86,17 +90,18 @@ public class GameFrame extends JFrame implements GameEventListener {
                 int y = me.getY();
 
                 // TODO Refactor into a method of BoardPanel
-                int col = x / 100;
-                int row = y / 100;
+                int col = x / 20;
+                int row = y / 20;
 
                 if (whoseTurn.get() == localPlayer) {
-                    Cell cell = boardPanel.getCell(row, col);
-                    if (cell.isEditable()) {
-                        Move move = new Move(row, col, localPlayer);
+                    Move move = new Move(row, col, localPlayer);
+                    if (boardModel.checkMoveEligible(move) == true) {
+                        try {
+                            nextMove.put(move);
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(GameFrame.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                         System.out.println("Move " + row + " " + col);
-                        boolean result = nextMove.offer(move);
-                        System.out.println(result);
-                        boardPanel.makeAMove(move);
                     }
                 }
             }
@@ -134,7 +139,7 @@ public class GameFrame extends JFrame implements GameEventListener {
         ServerPlayer _remotePlayer = (ServerPlayer) this.remotePlayer;
 
         // TODO Ask the user for the dimensions
-        boardModel = new backend.BoardModel(9, 9);
+        boardModel = new backend.BoardModel(20, 20);
         this.initBoardPanel();
 
         ArrayList<Player> playerList = new ArrayList<>();
@@ -151,17 +156,12 @@ public class GameFrame extends JFrame implements GameEventListener {
         _remotePlayer.waitForClientToStart();
         System.out.println("Game started!");
 
-        final GameSession gameSession = new GameSession(playerList, boardModel, 3);
+        final GameSession gameSession = new GameSession(playerList, boardModel, 5);
 
         gameSession.addGameEventListener(_remotePlayer);
         gameSession.addGameEventListener(this);
 
         gameSession.takeTurn(whoseTurn);
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//            }
-//        }).start();
     }
 
     @Override

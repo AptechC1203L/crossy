@@ -28,6 +28,7 @@ public class Client {
     private Player ourPlayer;
     private Player remotePlayer;
     private AtomicReference<Player> whoseTurn;
+    private BoardModel board;
 
     public Client(Player ourPlayer, BlockingQueue<Move> ourNextMove, AtomicReference<Player> whoseTurn) {
         this.gameEventListeners = new ArrayList<>();
@@ -63,7 +64,8 @@ public class Client {
             if (tokens[0].equals("BOARD")) {
                 int width = Integer.parseInt(tokens[1]);
                 int height = Integer.parseInt(tokens[2]);
-                return new BoardModel(width, height);
+                board = new BoardModel(width, height);
+                return board;
             }
         }
     }
@@ -126,6 +128,7 @@ public class Client {
         this.whoseTurn.set(ourPlayer);
         Move move = this.ourNextMove.take();
         this.send("PLAY " + move.getRow() + " " + move.getColumn());
+        board.makeMove(move);
         this.whoseTurn.set(remotePlayer);
     }
 

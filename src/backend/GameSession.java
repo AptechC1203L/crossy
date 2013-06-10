@@ -36,11 +36,11 @@ public class GameSession {
             for (int i = 0; i < this.playerList.size(); i++) {
                 Player player = this.playerList.get(i);
                 whoseTurn.set(player);
+                
                 System.out.println(whoseTurn.get().getName());
-                System.out.println("here");
+                
                 Move move = player.makeAMove();
-                System.out.println("move");
-                if (this.board.makeMove(move) == -1) {
+                if (this.board.makeMove(move) == false) {
                     System.out.println("Wrong move!");
                     // Give them another chance
                     i--;
@@ -145,7 +145,7 @@ public class GameSession {
             win = true;
             for (int k = 0; k < this.winLen; k++) {
                 try {
-                    if (this.board.get(row - i + k, column - i + k) != p) {
+                    if (this.board.get(row - i + k, column + i - k) != p) {
                         win = false;
                         break;
                     }
@@ -164,7 +164,7 @@ public class GameSession {
             win = true;
             for (int k = 0; k < this.winLen; k++) {
                 try {
-                    if (this.board.get(row, column - i + k) != p) {
+                    if (this.board.get(row - i + k, column - i + k) != p) {
                         win = false;
                         break;
                     }

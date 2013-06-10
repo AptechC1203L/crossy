@@ -34,18 +34,24 @@ public class BoardModel {
         return board.length;
     }
 
-    public int makeMove(Move move) {
+    public boolean makeMove(Move move) {
+        if (this.checkMoveEligible(move)) {
+            this.board[move.getRow()][move.getColumn()] = move.getPlayer();
+            return true;
+        }
+        return false;
+    }
+    
+    public boolean checkMoveEligible(Move move) {
         int row = move.getRow();
         int col = move.getColumn();
         Player p = move.getPlayer();
-
+        
         if (col < this.getWidth() && row < this.getHeight()
                 && row >= 0 && col >= 0
                 && board[row][col] == null) {
-            this.board[row][col] = p;
-            return 0;
-        } else {
-            return -1;
+            return true;
         }
+        return false;
     }
 }
