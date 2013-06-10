@@ -31,9 +31,9 @@ public class BoardPanel extends JPanel implements ActionListener {
     private BoardModel board;
 
     public BoardPanel(BoardModel board) {
-        ImageIcon iix = new ImageIcon("img/x.png");
+        ImageIcon iix = new ImageIcon(BoardPanel.class.getResource("/img/x.png"));
         imgX = iix.getImage();
-        ImageIcon iio = new ImageIcon("img/o.png");
+        ImageIcon iio = new ImageIcon(BoardPanel.class.getResource("/img/o.png"));
         imgO = iio.getImage();
         
         this.board = board;
