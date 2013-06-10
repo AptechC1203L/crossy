@@ -48,12 +48,11 @@ public class GameFrame extends JFrame implements GameEventListener {
         this.whoseTurn = new AtomicReference<>();
 
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-//        this.setSize(300, 320);
-//        this.setResizable(false);
         this.setVisible(true);
     }
 
     /**
+     * Creates a BoardPanel and adds it to the current window.
      * This can only be run after a this.boardModel is initialized
      */
     public void initBoardPanel() {
@@ -106,7 +105,6 @@ public class GameFrame extends JFrame implements GameEventListener {
                     JOptionPane.ERROR_MESSAGE);
             return;
         }
-
 
         this.initBoardPanel();
 
@@ -218,12 +216,15 @@ public class GameFrame extends JFrame implements GameEventListener {
         } else if (n == 1) {
             startClient();
         }
+        
+        this.setVisible(false);
+        this.dispose();
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
         // TODO code application logic here
         GameFrame gameFrame = new GameFrame();
         gameFrame.run();
-        gameFrame.dispose();
+        System.exit(0);
     }
 }

@@ -71,6 +71,9 @@ public class ServerPlayer extends Player implements GameEventListener {
         String result;
         try {
             result = this.inStream.readLine();
+            if (result == null) {
+                return null;
+            }
             String[] cmdTokens = result.split(" ");
             if (cmdTokens[0].equals("PLAY")) {
                 return new Move(Integer.parseInt(cmdTokens[1]),
